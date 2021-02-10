@@ -12,12 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property string $title
- * @property string $measurement
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
  */
-class Product extends Model
+class Department extends Model
 {
     use SoftDeletes;
     /**
@@ -25,7 +24,6 @@ class Product extends Model
      */
     protected $fillable = [
         'title',
-        'measurement'
     ];
 
     /**
@@ -37,7 +35,7 @@ class Product extends Model
         return $this->fill($params)->save();
     }
 
-    public function getItems(array $params, $perPage = 15): LengthAwarePaginator
+    public function getItems(array $params, int $perPage = 15): LengthAwarePaginator
     {
         $items = self::query();
         if (isset($params['title']))
@@ -46,7 +44,7 @@ class Product extends Model
         return $items->paginate($perPage);
     }
 
-    public function getItem($id)
+    public function getItem(int $id)
     {
         return self::query()->find($id);
     }

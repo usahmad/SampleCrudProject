@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title','Product create')
+@section('title','Department create')
 @section('content')
     <div class="col-lg-12">
         <div class="card">

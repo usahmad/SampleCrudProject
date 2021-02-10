@@ -34,22 +34,14 @@ class Logs extends Model
         return $items->with('user')->orderByDesc('id')->paginate(50);
     }
 
-    public function store($user_id,$message,$ip)
+    public function store(int $user_id, string $message, string $ip): bool
     {
         try {
-            $logs = new self();
-            $logs->user_id = $user_id;
-            $logs->message = $message;
-            $logs->ip = ip2long($ip);
-            $logs->save();
+            $ip = ip2long($ip);
+            return self::query()->insert(compact('user_id', 'message', 'ip'));
         } catch (\Exception $exception) {
             dd($exception->getMessage());
         }
-    }
-
-    public function storeItem(array $params): bool
-    {
-        return self::query()->insert($params);
     }
 
     public function user(): BelongsTo

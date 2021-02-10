@@ -57,7 +57,7 @@ class User extends Authenticatable
      * @param int $paginate
      * @return LengthAwarePaginator
      */
-    public function getItems(array $request, $paginate = 15): LengthAwarePaginator
+    public function getItems(array $request, int $paginate = 15): LengthAwarePaginator
     {
         $items = self::query();
         if (isset($request['name'])) {
@@ -70,7 +70,7 @@ class User extends Authenticatable
      * @param $id
      * @return Builder|Builder[]|Collection|Model|null
      */
-    public function getItem($id)
+    public function getItem(int $id)
     {
         return self::query()->find($id);
     }
@@ -79,7 +79,7 @@ class User extends Authenticatable
      * @param $params
      * @return int
      */
-    public function storeItem($params): int
+    public function storeItem(array $params): int
     {
         $this->name = $params['name'];
         if (isset($params['password']))

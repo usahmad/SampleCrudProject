@@ -1,32 +1,68 @@
 <?php
+namespace App\Functionality;
 
-namespace App\Functionality\User;
-
-use App\Interfaces\StoreInterface;
 use App\Models\Logs;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
-class UserStore implements StoreInterface
+class Users
 {
-    protected $rules = [
-        'name' => 'required',
-        'password' => 'required'
+
+    const USER_LIST = 'user@name={key}@page={key}';
+    const USER = 'user@id={key}';
+    const rules = [
+        'name' => 'required'
     ];
 
-
-    public static function getInstance(): UserStore
+    public static function getInstance(): Users
     {
         return new self();
     }
 
+    public function getList($request): LengthAwarePaginator
+    {
+        $cacheKey = Str::replaceArray(
+            '{key}',
+            [
+                $request->input('name'),
+                (0 === (int)$request->query('page')) ? 1 : (int)$request->query('page')
+            ],
+            self::USER_LIST
+        );
+        $cache = Cache::tags('user')->get($cacheKey);
+        if (is_null($cache)){
+            $cache = (new User())->getItems($request->all());
+            Cache::tags('user')->put($cacheKey, $cache, now()->addDay());
+        }
+        return $cache;
+    }
+
+    public function getListItem($id): User
+    {
+        $cacheKey = Str::replaceArray(
+            '{key}',
+            [
+                $id
+            ],
+            self::USER
+        );
+        $cache = Cache::tags('user')->get($cacheKey);
+        if (is_null($cache)) {
+            $cache = (new User())->getItem($id);
+            Cache::tags('user')->put($cacheKey, $cache, now()->addDay());
+        }
+
+        return $cache;
+    }
 
     public function store(array $params): int
     {
-        $validator = Validator::make($params, $this->rules);
+        $validator = Validator::make($params, self::rules);
         if ($validator->fails())
             return 422;
 
@@ -43,14 +79,14 @@ class UserStore implements StoreInterface
      */
     public function update(array $params, $id)
     {
-        $validator = Validator::make($params, ['name' => 'required']);
+        $validator = Validator::make($params, self::rules);
 
         if ($validator->fails())
             return 422;
 
         try {
 
-            UserList::getInstance()
+            Users::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
             Cache::tags('user')->flush();
@@ -78,15 +114,15 @@ class UserStore implements StoreInterface
         }
     }
 
-    public function change_password(array $params)
+    public function change_password(array $params): int
     {
         /**
          * @var User $user
          */
         $user = Auth::user();
         $validator = Validator::make($params, [
-            'old_password'      => 'required',
-            'new_password'      => 'required',
+            'old_password' => 'required',
+            'new_password' => 'required',
             'new_password_conf' => 'required|same:new_password'
         ]);
         if ($validator->fails()) {
