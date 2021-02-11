@@ -66,4 +66,18 @@ class UserController extends Controller
         else
             return back()->with('error', sprintf('Ошибка: %s, На строке: %s', ...$callback));
     }
+
+    public function change_password(Request $request)
+    {
+        if ($request->isMethod('POST')){
+            $callback = Users::getInstance()->change_password($request->all());
+            if ($callback === 200)
+                return back()->with('success', 'Успешно');
+            elseif ($callback ===700)
+                return back()->with('error', 'Пароли не совпадают');
+            else
+                return back()->with('error', 'Не хватает данных');
+        }
+        return view('user.change_password');
+    }
 }

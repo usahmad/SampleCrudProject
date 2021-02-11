@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Functionality\Constants;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Blade::if('permission', function ($value) {
-            return auth()->user()->hasPermission($value);
+            return auth()->user()->hasPermission($value) && !in_array($value, Constants::excludedRoutes);
         });
     }
 }

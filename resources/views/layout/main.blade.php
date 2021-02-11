@@ -1,5 +1,6 @@
 <?php
 
+use App\Functionality\Constants;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Route;
  */
 $user = Auth::user();
 $route = Route::currentRouteName();
+$excludedRoutes = Constants::excludedRoutes;
 ?>
 <!DOCTYPE html>
 <html>
@@ -48,7 +50,7 @@ $route = Route::currentRouteName();
         <div class="main-menu">
             <ul id="side-main-menu" class="side-menu list-unstyled" style=" overflow-x: hidden;">
                 @foreach(config('menu') as $menu)
-                    @if($user->hasPermission($menu['permission']))
+                    @if($user->hasPermission($menu['permission']) || in_array($menu['permission'], $excludedRoutes))
                         <li class="{{$route == $menu['permission'] ? "active" : ""}}">
                             <a href="{{route($menu['permission'])}}" class="word_break">
                                 <i class="{{$menu['icon']}}"></i>{{$menu['text']}}
@@ -87,7 +89,7 @@ $route = Route::currentRouteName();
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <p>Netco Telecom &copy; 2015 - {{date('Y')}}</p>
+                    <p>Компания &copy; {{date('Y')}}</p>
                 </div>
                 <div class="col-sm-6 text-right">
                     <p>
