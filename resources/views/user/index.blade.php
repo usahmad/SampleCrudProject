@@ -1,56 +1,56 @@
-@extends('layouts.main')
-@section('title','User List')
-@section('menu')
-    @include('user.menu')
-@endsection
+@extends('layout.main')
+@push('scripts')
+@endpush
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Список пользователей</h4>
+            </div>
+            @include('user.filter')
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-striped table-sm">
                         <thead>
                         <tr>
-                            <th scope="col" width="1%">#</th>
-                            <th>User name</th>
-                            <th>Role</th>
-                            <th>Date created</th>
-                            <th>&nbsp;</th>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Permissions</th>
+                            <th>Created AT</th>
+                            <th>Deactivate</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($items as $key => $user)
                             <tr>
-                                <td>{{($key + 1)}}</td>
+                                <th scope="row">{{$key + 1}}</th>
+                                <td><a href="{{route('user.edit', $user->id)}}">{{$user->getName()}}</a></td>
                                 <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getName()}}</a>
+                                    <ul>
+                                        @foreach($user->getPermissions() as $permission)
+                                            <li>{{$permission}}</li>
+                                        @endforeach
+                                    </ul>
                                 </td>
+                                <td><a href="{{route('user.edit', $user->id)}}">{{$user->getCreatedAt()}}</a></td>
                                 <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getRole()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getCreatedAt()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('user.destroy', $user->id)}}" class="btn btn-danger">Deactivate</a>
+                                    @permission('user.destroy')
+                                        <a href="{{route('user.destroy', $user->id)}}" class="btn btn-danger">Удалить</a>
+                                    @endpermission
                                 </td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
-
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <nav aria-label="pagination example">
-                            {{ $items->links('layouts.paginator', ['paginator' => $items]) }}
-                        </nav>
+                    <div class="row">
+                        <div class="col">
+                            <nav aria-label="pagination example">
+                                {{ $items->links('shared.pagination', ['paginator' => $items]) }}
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
-
 @endsection

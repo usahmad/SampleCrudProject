@@ -4,15 +4,11 @@ namespace App\Functionality;
 
 use App\Models\Department;
 use App\Models\Logs;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class Departments
 {
-    const DEPARTMENT_LIST = 'department@title={key}@page={key}';
-    const DEPARTMENT = 'department@id={key}';
-
     const rules = [
         'title' => 'required'
     ];
@@ -22,40 +18,14 @@ class Departments
         return new self();
     }
 
-    public function getList($request)
+    public function getList($request): LengthAwarePaginator
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $request->input('title'),
-                (0 === (int)$request->query('page')) ? 1 : (int)$request->query('page')
-            ],
-            self::DEPARTMENT_LIST
-        );
-        $cache = Cache::tags('department')->get($cacheKey);
-        if (is_null($cache)){
-            $cache = (new Department())->getItems($request->all());
-            Cache::tags('department')->put($cacheKey, $cache, now()->addDay());
-        }
-        return $cache;
+        return (new Department())->getItems($request->all());
     }
 
-    public function getListItem($id): Department
+    public function getListItem($id)
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $id
-            ],
-            self::DEPARTMENT
-        );
-        $cache = Cache::tags(['department', $id])->get($cacheKey);
-        if (is_null($cache)) {
-            $cache = (new Department())->getItem($id);
-            Cache::tags(['department', $id])->put($cacheKey, $cache, now()->addDay());
-        }
-
-        return $cache;
+        return (new Department())->getItem($id);
     }
 
     public function store(array $params): int
@@ -66,7 +36,6 @@ class Departments
 
         (new Department())->storeItem($validator->getData());
         (new Logs())->store(auth()->user()->id, 'department created', request()->ip());
-        Cache::tags('department')->flush();
         return 200;
     }
 
@@ -87,7 +56,6 @@ class Departments
             self::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            Cache::tags(['department', $id])->flush();
             (new Logs())->store(auth()->user()->id, 'department updated', request()->ip());
 
         } catch (\Exception $exception) {
@@ -98,4 +66,24 @@ class Departments
         }
 
         return 200;
-    }}
+    }
+
+    public function delete($id)
+    {
+        try {
+            self::getInstance()
+                ->getListItem($id)
+                ->delete();
+
+            (new Logs())->store(auth()->user()->id, 'department deleted', request()->ip());
+            return 200;
+        } catch (\Exception $e) {
+
+            return [
+                $e->getMessage(),
+                $e->getLine(),
+            ];
+
+        }
+    }
+}

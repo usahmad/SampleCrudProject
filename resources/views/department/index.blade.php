@@ -1,53 +1,40 @@
-@extends('layouts.main')
-@section('title','User List')
+@extends('layout.main')
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Департаменты</h4>
+            </div>
+            <a href="{{route('department.create')}}" class="btn btn-sm btn-primary">Добавить</a>
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-striped table-sm">
                         <thead>
                         <tr>
-                            <th scope="col" width="1%">#</th>
-                            <th>title</th>
-                            <th>measurement</th>
-                            <th>Date created</th>
-                            <th>&nbsp;</th>
+                            <th>#</th>
+                            <th>Департамент</th>
+                            <th>&ensp;</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($items as $key => $product)
+                        @foreach($items as $key => $department)
                             <tr>
-                                <td>{{($key + 1)}}</td>
+                                <th scope="row">{{$key + 1}}</th>
                                 <td>
-                                    <a href="{{route('department.edit', $product->id)}}">{{$product->title}}</a>
+                                    <a href="{{route('department.edit', $department->id)}}">{{$department->title}}</a>
                                 </td>
                                 <td>
-                                    <a href="{{route('department.edit', $product->id)}}">{{$product->measurement}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('department.edit', $product->id)}}">{{$product->getCreatedAt()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('department.destroy', $product->id)}}" class="btn btn-danger">Deactivate</a>
+                                    @permission('department.destroy')
+                                    <a href="{{route('department.destroy', $department->id)}}"
+                                       class="btn btn-sm btn-danger">Удалить</a>
+                                    @endpermission
                                 </td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
-
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <nav aria-label="pagination example">
-                            {{ $items->links('layouts.paginator', ['paginator' => $items]) }}
-                        </nav>
-                    </div>
                 </div>
             </div>
-
         </div>
-
     </div>
-
 @endsection

@@ -69,7 +69,6 @@ class AuthController extends Controller
         return redirect(route('login'));
     }
 
-
     /**
      * @param Request $request
      * @return View|RedirectResponse

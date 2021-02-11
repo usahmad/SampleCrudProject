@@ -1,66 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login to Res AUTO</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet"
-          type="text/css">
-    <link href="{{asset('global_assets/css/icons/icomoon/styles.min.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/css/bootstrap_limitless.min.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/css/layout.min.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/css/components.min.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/css/colors.min.css')}}" rel="stylesheet" type="text/css">
+    <title>Служба поддержки пользователей</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{asset('font-awesome/css/font-awesome.min.css')}}">
+    <link rel="stylesheet" href="{{asset('css/fontastic.css')}}">
+    <link rel="stylesheet" href="{{asset('css/grasp_mobile_progress_circle-1.0.0.min.css')}}">
+    <link rel="stylesheet" href="{{asset('css/jquery.mCustomScrollbar.css')}}">
+    <link rel="stylesheet" href="{{asset('css/style.sea.css')}}" id="theme-stylesheet">
+    <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
+    <link rel="manifest" href="/manifest.json">
 </head>
-
 <body>
-<div class="page-content">
-    <div class="content-wrapper">
-        <div class="content d-flex justify-content-center align-items-center pt-0">
-            <form class="login-form" action="{{route('login')}}" method="POST">
-                {{csrf_field()}}
-                <div class="card mb-0">
-                    <div class="card-body">
-                        <div class="text-center mb-3">
-                            <i class="icon-reading icon-2x text-slate-300 border-slate-300 border-3 rounded-round p-3 mb-3 mt-1"></i>
-                            <h5 class="mb-0">Login to your account</h5>
-                            <span class="d-block text-muted">Enter your credentials below</span>
-                        </div>
 
-                        <div class="form-group form-group-feedback form-group-feedback-left">
-                            <input type="text" name="name" class="form-control" placeholder="Username">
-                            <div class="form-control-feedback">
-                                <i class="icon-user text-muted"></i>
-                            </div>
+<div class="col-12 col-md-12 col-lg-12">
+    <div class="page login-page" style="width: 110%;">
+        <div class="container">
+            <div class="form-outer text-center d-flex align-items-center">
+                <div class="form-inner">
+                    <div class="logo text-uppercase"><span>Авторизация</span><strong class="text-primary">
+                            <br>
+                            Какая то компания</strong></div>
+                    <form action="{{ route('login') }}" id="form" method="POST" class="text-left">
+                        {{ csrf_field() }}
+                        <div class="form-group-material">
+                            <input id="login-username" type="text" name="name" required
+                                   data-msg="Введите пожалуста Имя пользователя" placeholder="Имя пользователя"
+                                   class="input-material">
                         </div>
-
-                        <div class="form-group form-group-feedback form-group-feedback-left">
-                            <input type="password" name="password" class="form-control" placeholder="Password">
-                            <div class="form-control-feedback">
-                                <i class="icon-lock2 text-muted"></i>
-                            </div>
+                        <div class="form-group-material">
+                            <input id="login-password" type="password" name="password" required
+                                   data-msg="Введите пожалуста Имя пользователя" placeholder="Пароль"
+                                   class="input-material">
                         </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary btn-block">Sign in <i
-                                    class="icon-circle-right2 ml-2"></i></button>
+                        <div class="form-group text-center">
+                            <input type="submit" id="login" class="btn btn-primary" value="Войти">
                         </div>
-                    </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-        <div class="navbar navbar-expand-lg navbar-light">
-            <div class="text-center d-lg-none w-100">
-                <button type="button" class="navbar-toggler dropdown-toggle" data-toggle="collapse"
-                        data-target="#navbar-footer">
-                    <i class="icon-unfold mr-2"></i>
-                    Footer
-                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{{asset('jquery/jquery.min.js')}}"></script>
+<script src="{{asset('js/bootstrap.min.js')}}"></script>
+<script>
+    navigator.serviceWorker.register('sw.js')
+        .then(function (registration)
+        {
+            console.log('Service worker registered successfully');
+        }).catch(function (e)
+    {
+        console.error('Error during service worker registration:', e);
+    });
+    $(document).ready(function () {
+        $("#form").submit(function () {
+            $("#login").on('click', function () {
+                $("#login").attr("disabled", true);
+                return true;
+            })
+        });
+    });
+</script>
 </body>
 </html>

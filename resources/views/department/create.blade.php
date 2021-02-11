@@ -1,38 +1,23 @@
-@extends('layouts.main')
-@section('title','Department create')
+@extends('layout.main')
+@push('scripts')
+@endpush
 @section('content')
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-body card-block">
-                <form action="{{route('department.store')}}" id="form" method="post" enctype="multipart/form-data" class="form-horizontal">
-                    @csrf
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="text-input" class=" form-control-label">Title</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <input type="text" id="text-input" name="title" placeholder="Title" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="password-input" class=" form-control-label">Role</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <select name="measurement" class="form-control">
-                                <option value="">Select measurement</option>
-                                @foreach($measurements as $role => $measurement)
-                                    <option value="{{$measurement}}">{{$measurement}}</option>
-                                @endforeach
-                            </select>
+            <div class="card-header d-flex align-items-center">
+                <h4>Добавить департамент</h4>
+            </div>
+            <div class="card-body">
+                <form class="form-horizontal" method="POST" action="{{route('department.store')}}" enctype='multipart/form-data'>
+                    {{ csrf_field() }}
+                    <div class="form-group row">
+                        <label class="col-sm-1 form-control-label">Название</label>
+                        <div class="col-sm-10">
+                            <input type="text" required name="title" class="form-control">
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-11">
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <input type="submit" value="Добавить" class="btn btn-sm btn-primary">
                     </div>
                 </form>
             </div>

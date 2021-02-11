@@ -1,10 +1,9 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class UserRole
+ * Class Permission
  * @package App\Models
  *
  * @property int $id
@@ -12,19 +11,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $role
  *
  */
-class UserRole extends Model
+class Permission extends Model
 {
     protected $fillable = [
-        'role',
+        'route_name',
         'user_id'
     ];
 
 
-    public function storeRoles(array $roles,int $user_id): bool
+    public function storeRoles(array $route_names,int $user_id): bool
     {
         $data = [];
-        foreach ($roles as $role){
-            $data[] = compact('role', 'user_id');
+        foreach ($route_names as $route_name){
+            $data[] = compact('route_name', 'user_id');
         }
         self::query()->where('user_id', '=', $user_id)->delete();
         return self::query()->insert($data);

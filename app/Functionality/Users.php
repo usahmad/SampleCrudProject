@@ -5,18 +5,16 @@ use App\Models\Logs;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class Users
 {
 
-    const USER_LIST = 'user@name={key}@page={key}';
-    const USER = 'user@id={key}';
     const rules = [
-        'name' => 'required'
+        'name' => 'required',
+        'permissions' => 'required'
     ];
 
     public static function getInstance(): Users
@@ -24,51 +22,36 @@ class Users
         return new self();
     }
 
+    public function getRouteNames(): array
+    {
+        return array_diff(array_keys(Route::getRoutes()->getRoutesByName()), \App\Functionality\Constants::excludedRoutes);
+    }
+
     public function getList($request): LengthAwarePaginator
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $request->input('name'),
-                (0 === (int)$request->query('page')) ? 1 : (int)$request->query('page')
-            ],
-            self::USER_LIST
-        );
-        $cache = Cache::tags('user')->get($cacheKey);
-        if (is_null($cache)){
-            $cache = (new User())->getItems($request->all());
-            Cache::tags('user')->put($cacheKey, $cache, now()->addDay());
-        }
-        return $cache;
+        return (new User())->getItems($request->all());
     }
 
-    public function getListItem($id): User
+    public function getListItem($id)
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $id
-            ],
-            self::USER
-        );
-        $cache = Cache::tags('user')->get($cacheKey);
-        if (is_null($cache)) {
-            $cache = (new User())->getItem($id);
-            Cache::tags('user')->put($cacheKey, $cache, now()->addDay());
-        }
-
-        return $cache;
+        return (new User())->getItem($id);
     }
 
-    public function store(array $params): int
+    /**
+     * @param array $params
+     * @return array|int
+     */
+    public function store(array $params)
     {
         $validator = Validator::make($params, self::rules);
         if ($validator->fails())
             return 422;
 
-        (new User())->storeItem($validator->getData());
+        $callback = (new User())->storeItem($validator->getData());
+        if(is_array($callback)){
+            return $callback;
+        }
         (new Logs())->store(auth()->user()->id, 'user created', request()->ip());
-        Cache::tags('user')->flush();
         return 200;
     }
 
@@ -86,10 +69,12 @@ class Users
 
         try {
 
-            Users::getInstance()
+            $callback = Users::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            Cache::tags('user')->flush();
+            if(is_array($callback)){
+                return $callback;
+            }
             (new Logs())->store(auth()->user()->id, 'user updated', request()->ip());
 
         } catch (\Exception $exception) {
@@ -102,15 +87,17 @@ class Users
         return 200;
     }
 
-    public function delete($id): int
+    public function delete($id)
     {
         try {
-            User::query()->find($id)->delete();
+            self::getInstance()->getListItem($id)->delete();
             (new Logs())->store(auth()->user()->id, 'user deleted', request()->ip());
-            Cache::tags('user')->flush();
             return 200;
         } catch (\Exception $e) {
-            return 500;
+            return [
+                $e->getMessage(),
+                $e->getLine(),
+            ];
         }
     }
 

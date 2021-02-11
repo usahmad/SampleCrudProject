@@ -1,40 +1,27 @@
-@extends('layouts.main')
-@section('title','Department create')
+@extends('layout.main')
+@push('scripts')
+@endpush
 @section('content')
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-body card-block">
-                <form action="{{route('department.update', $product->id)}}" id="form" method="post" enctype="multipart/form-data" class="form-horizontal">
-                    @csrf
+            <div class="card-header d-flex align-items-center">
+                <h4>Отредактировать департамент</h4>
+            </div>
+            <div class="card-body">
+                <form class="form-horizontal" method="POST" action="{{route('department.update', $item->id) }}" enctype='multipart/form-data'>
                     @method('PUT')
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="text-input" class=" form-control-label">Title</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <input type="text" id="text-input" name="title" value="{{$product->title}}"  placeholder="Title" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="password-input" class=" form-control-label">Role</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <select name="measurement" class="form-control">
-                                <option value="">Select measurement</option>
-                                @foreach($measurements as $role => $measurement)
-                                    <option value="{{$measurement}}" {{$measurement === $product->measurement ? "selected" : ''}}>{{$measurement}}</option>
-                                @endforeach
-                            </select>
+                    {{ csrf_field() }}
+                    <div class="form-group row">
+                        <label class="col-sm-1 form-control-label">Категория</label>
+                        <div class="col-sm-10">
+                            <input type="text" required name="title" value="{{$item->title}}" class="form-control">
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-11">
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                            </div>
+                    @permission('department.update')
+                        <div class="form-group">
+                            <input type="submit" value="Отредактировать" class="btn btn-sm btn-primary">
                         </div>
-                    </div>
+                    @endpermission
                 </form>
             </div>
         </div>

@@ -11,11 +11,11 @@ Route::middleware('auth')->group(function () {
 
     Route::match(['get', 'post'], 'change_password', 'UserController@change_password')->name('change_password');
 
-    Route::resource('log', 'LogController');
-    Route::resource('user', 'UserController');
+    Route::middleware('permission')->group(function () {
+        Route::resource('log', 'LogController');
+        Route::resource('user', 'UserController');
+        Route::resource('ticket', 'TicketController');
+        Route::resource('department', 'DepartmentController');
+    });
 
-});
-
-Route::namespace('Ajax')->prefix('ajax')->group(function () {
-    Route::get('getIngredients', 'IngredientAdd@index')->name('getIngredients');
 });

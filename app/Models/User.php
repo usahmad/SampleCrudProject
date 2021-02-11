@@ -8,9 +8,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -23,6 +25,8 @@ use Illuminate\Support\Facades\Hash;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
+ *
+ * @property-read Permission $permissions
  *
  */
 class User extends Authenticatable
@@ -38,12 +42,6 @@ class User extends Authenticatable
         'password',
     ];
 
-    public $roles = [
-        'manager' => 'Manager',
-        'admin'   => 'Admin',
-        'staff'   => 'Staff'
-    ];
-
     /**
      * @var string[]
      */
@@ -51,6 +49,16 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function hasPermission($routeName): bool
+    {
+        return in_array($routeName, $this->permissions->pluck('route_name')->toArray());
+    }
+
+    public function getPermissions()
+    {
+        return $this->permissions->pluck('route_name')->toArray();
+    }
 
     /**
      * @param array $request
@@ -63,7 +71,7 @@ class User extends Authenticatable
         if (isset($request['name'])) {
             $items = $items->where('name', 'like', '%' . $request['name'] . '%');
         }
-        return $items->paginate($paginate);
+        return $items->with('permissions')->paginate($paginate);
     }
 
     /**
@@ -77,16 +85,33 @@ class User extends Authenticatable
 
     /**
      * @param $params
-     * @return int
+     * @return array|int
      */
-    public function storeItem(array $params): int
+    public function storeItem(array $params)
     {
-        $this->name = $params['name'];
-        if (isset($params['password']))
-            $this->password = Hash::make($params['password']);
-        $this->role = $params['role'];
-        $this->save();
-        return $this->id;
+        DB::beginTransaction();
+        try {
+            $this->name = $params['name'];
+            if (isset($params['password']))
+                $this->password = Hash::make($params['password']);
+            if ($this->save()){
+                (new Permission())->storeRoles($params['permissions'], $this->id);
+            }
+
+            DB::commit();
+            return $this->id;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return [
+                $exception->getMessage(),
+                $exception->getLine()
+            ];
+        }
+    }
+
+    public function permissions(): HasMany
+    {
+        return $this->hasMany(Permission::class);
     }
 
     /**

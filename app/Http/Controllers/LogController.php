@@ -1,11 +1,10 @@
 <?php
 
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers;
 
 
-use App\Functionality\Log\LogList;
-use App\Http\Controllers\Controller;
+use App\Functionality\Logs;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
@@ -13,7 +12,7 @@ class LogController extends Controller
 
     public function index(Request $request)
     {
-        $items = LogList::getInstance()->getList($request);
+        $items = Logs::getInstance()->getList($request);
         return view('log.index', compact('items'));
     }
 

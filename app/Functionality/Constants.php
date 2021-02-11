@@ -13,8 +13,15 @@ class Constants
         3 => 'Низкий'
     ];
 
-    const roles = [
-        'admin',
-        'neadmin'
+    const excludedRoutes = [
+        'ignition.healthCheck',
+        'ignition.executeSolution',
+        'ignition.shareReport',
+        'ignition.scripts',
+        'ignition.styles',
+        'login',
+        'logout',
+        'change_password',
+        'home'
     ];
 }

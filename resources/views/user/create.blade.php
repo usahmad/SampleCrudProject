@@ -1,47 +1,42 @@
-@extends('layouts.main')
-@section('title','User create')
-@section('menu')
-    @include('user.menu')
-@endsection
+@extends('layout.main')
+@push('scripts')
+@endpush
 @section('content')
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-body card-block">
-                <form action="{{route('user.store')}}" id="form" method="post" enctype="multipart/form-data" class="form-horizontal">
-                    @csrf
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="text-input" class=" form-control-label">User Name</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <input type="text" id="text-input" name="name" placeholder="User Name" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="password-input" class=" form-control-label">Password</label>
-                        </div>
-                        <div class="col-12 col-md-10">
-                            <input type="password" id="password-input" name="password" placeholder="Enter the password" class="form-control">
+            <div class="card-header d-flex align-items-center">
+                <h4>Добавить пользователя</h4>
+            </div>
+            <div class="card-body">
+                <form class="form-horizontal" method="POST" action="{{route('user.store') }}" enctype='multipart/form-data'>
+                    {{ csrf_field() }}
+                    <div class="form-group row">
+                        <label class="col-sm-1 form-control-label">Имя пользователя</label>
+                        <div class="col-sm-10">
+                            <input type="text" required name="name" class="form-control">
                         </div>
                     </div>
-                    <div class="row form-group">
-                        <div class="col col-md-2">
-                            <label for="password-input" class=" form-control-label">Role</label>
+                    <div class="form-group row">
+                        <label class="col-sm-1 form-control-label">Пароль</label>
+                        <div class="col-sm-10">
+                            <input type="text" required name="password" class="form-control">
                         </div>
-                        <div class="col-12 col-md-10">
-                            <select name="role" class="form-control">
-                                <option value="">Select Role</option>
-                                @foreach($roles as $role => $name)
-                                    <option value="{{$role}}">{{$name}}</option>
+                    </div>
+                    <div class="form-group row"><!-- Xose -->
+                        <label class="col-sm-1 form-control-label" for="user_types">Выбрать</label>
+                        <div class="col-sm-10">
+                            <select name="permissions[]" style="height: 500px" multiple class="form-control">
+                                <option value="" selected="selected">Выберите привилегия</option>
+                                @foreach($routes as $route)
+                                    <option value="{{ $route }}">{{ $route }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-11">
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="submit" value="Добавить" class="btn btn-sm btn-primary">
                             </div>
                         </div>
                     </div>

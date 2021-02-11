@@ -6,17 +6,21 @@ namespace App\Functionality;
 
 use App\Models\Logs;
 use App\Models\Ticket;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class Tickets
 {
 
-    const TICKET_LIST = 'ticket@title={key}@page={key}';
-    const TICKET = 'ticket@id={key}';
     const rules = [
-        'title' => 'required'
+        'priority' => 'required',
+        'department_id' => 'required',
+        'assignment' => 'required',
+        'initiator' => 'required',
+        'theme' => 'required',
+        'executedBy' => 'required',
+        'markingComment' => 'required',
+        'execution_period' => 'required',
     ];
 
     public static function getInstance(): Tickets
@@ -24,40 +28,14 @@ class Tickets
         return new self();
     }
 
-    public function getList($request)
+    public function getList($request): LengthAwarePaginator
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $request->input('title'),
-                (0 === (int)$request->query('page')) ? 1 : (int)$request->query('page')
-            ],
-            self::TICKET_LIST
-        );
-        $cache = Cache::tags('ticket')->get($cacheKey);
-        if (is_null($cache)) {
-            $cache = (new Ticket())->getItems($request->all());
-            Cache::tags('ticket')->put($cacheKey, $cache, now()->addDay());
-        }
-        return $cache;
+        return (new Ticket())->getItems($request->all());
     }
 
-    public function getListItem($id): Ticket
+    public function getListItem($id)
     {
-        $cacheKey = Str::replaceArray(
-            '{key}',
-            [
-                $id
-            ],
-            self::TICKET
-        );
-        $cache = Cache::tags(['ticket', $id])->get($cacheKey);
-        if (is_null($cache)) {
-            $cache = (new Ticket())->getItem($id);
-            Cache::tags(['ticket', $id])->put($cacheKey, $cache, now()->addDay());
-        }
-
-        return $cache;
+        return (new Ticket())->getItem($id);
     }
 
     public function store(array $params): int
@@ -67,8 +45,7 @@ class Tickets
             return 422;
 
         (new Ticket())->storeItem($validator->getData());
-        (new Logs())->store(auth()->user()->id, 'department created', request()->ip());
-        Cache::tags('ticket')->flush();
+        (new Logs())->store(auth()->user()->id, 'ticket created', request()->ip());
         return 200;
     }
 
@@ -89,8 +66,7 @@ class Tickets
             self::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            Cache::tags(['ticket', $id])->flush();
-            (new Logs())->store(auth()->user()->id, 'department updated', request()->ip());
+            (new Logs())->store(auth()->user()->id, 'ticket updated', request()->ip());
 
         } catch (\Exception $exception) {
             return [
@@ -106,7 +82,6 @@ class Tickets
     {
         try {
             self::getInstance()->getListItem($id)->delete();
-            Cache::tags('ticket')->flush();
             return 200;
         } catch (\Exception $e) {
             return [
