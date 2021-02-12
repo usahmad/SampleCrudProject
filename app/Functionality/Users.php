@@ -1,7 +1,7 @@
 <?php
 namespace App\Functionality;
 
-use App\Models\Logs;
+use App\Models\Log;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +51,7 @@ class Users
         if(is_array($callback)){
             return $callback;
         }
-        (new Logs())->store(auth()->user()->id, 'user created', request()->ip());
+        (new Log())->store(auth()->user()->id, 'user created', request()->ip());
         return 200;
     }
 
@@ -75,7 +75,7 @@ class Users
             if(is_array($callback)){
                 return $callback;
             }
-            (new Logs())->store(auth()->user()->id, 'user updated', request()->ip());
+            (new Log())->store(auth()->user()->id, 'user updated', request()->ip());
 
         } catch (\Exception $exception) {
             return [
@@ -91,7 +91,7 @@ class Users
     {
         try {
             self::getInstance()->getListItem($id)->delete();
-            (new Logs())->store(auth()->user()->id, 'user deleted', request()->ip());
+            (new Log())->store(auth()->user()->id, 'user deleted', request()->ip());
             return 200;
         } catch (\Exception $e) {
             return [
@@ -120,7 +120,7 @@ class Users
             User::query()
                 ->where('id', '=', $user_id)
                 ->update(['password' => Hash::make($params['new_password'])]);
-            (new Logs())->store(Auth::user()->id, "Password changed", request()->ip());
+            (new Log())->store(Auth::user()->id, "Password changed", request()->ip());
             return 200;
         } else
             return 700;

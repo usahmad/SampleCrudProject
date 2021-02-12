@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Functionality\Constants;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
@@ -26,13 +27,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $delete_at
+ *
+ * @property-read Department $department
  */
 class Ticket extends Model
 {
 
     use SoftDeletes;
 
-
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'priority',
         'department_id',
@@ -44,6 +49,15 @@ class Ticket extends Model
         'execution_period',
         'execution_actual',
         'delay',
+    ];
+
+    /**
+     * @var string[]
+     */
+    private $carbonKeys = [
+        'execution_period',
+        'execution_actual',
+        'delay'
     ];
 
     /**
@@ -104,6 +118,10 @@ class Ticket extends Model
 
     }
 
+    /**
+     * @param int $id
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
+     */
     public function getItem(int $id)
     {
         return self::query()->find($id);
@@ -115,6 +133,12 @@ class Ticket extends Model
      */
     public function storeItem(array $data): bool
     {
+        foreach ($data as $key => $value){
+            if (in_array($key, $this->carbonKeys)){
+                $data[$key] = Carbon::make($value);
+            }
+        }
+
         return $this->fill($data)->save();
     }
 
@@ -145,15 +169,15 @@ class Ticket extends Model
      */
     public function getPriority(): string
     {
-        return $this->priority;
+        return Constants::priorities[$this->priority];
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getDepartmentId(): int
+    public function getDepartment(): string
     {
-        return $this->department_id;
+        return $this->department->title;
     }
 
     /**
@@ -197,35 +221,35 @@ class Ticket extends Model
     }
 
     /**
-     * @return Carbon
+     * @return string
      */
-    public function getExecutionPeriod(): Carbon
+    public function getExecutionPeriod(): string
     {
-        return $this->execution_period;
+        return $this->execution_period !== null ? Carbon::make($this->execution_period)->format('d.m.Y') : "";
     }
 
     /**
-     * @return Carbon
+     * @return string
      */
-    public function getExecutionActual(): Carbon
+    public function getExecutionActual(): string
     {
-        return $this->execution_actual;
+        return $this->execution_actual !== null ? Carbon::make($this->execution_actual)->format('d.m.Y') : "";
     }
 
     /**
-     * @return Carbon
+     * @return string
      */
-    public function getDelay(): Carbon
+    public function getDelay(): string
     {
-        return $this->delay;
+        return $this->delay !== null ? Carbon::make($this->delay)->format('d.m.Y') : "";
     }
 
     /**
-     * @return Carbon
+     * @return string
      */
-    public function getCreatedAt(): Carbon
+    public function getCreatedAt(): string
     {
-        return $this->created_at;
+        return $this->created_at->format('d.m.Y');
     }
 
 

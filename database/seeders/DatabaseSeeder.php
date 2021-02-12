@@ -19,5 +19,17 @@ class DatabaseSeeder extends Seeder
             'name'     => 'admin',
             'password' => Hash::make('password'),
         ]);
+        DB::table('permissions')->insert([[
+            'user_id' => 1,
+            'route_name' => 'user.index'
+        ],
+            [
+                'user_id' => 1,
+                'route_name' => 'user.edit'
+            ],
+            [
+                'user_id' => 1,
+                'route_name' => 'user.update'
+            ]]);
     }
 }

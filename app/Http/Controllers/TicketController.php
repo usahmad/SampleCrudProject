@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Functionality\Departments;
 use App\Functionality\Tickets;
+use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -11,12 +13,13 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $items = Tickets::getInstance()->getList($request);
-        return view('department.index', compact('items'));
+        return view('ticket.index', compact('items'));
     }
 
     public function create()
     {
-        return view('department.create');
+        $departments = Department::query()->get();
+        return view('ticket.create', compact('departments'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -30,8 +33,9 @@ class TicketController extends Controller
 
     public function edit($id)
     {
+        $departments = Department::query()->get();
         $item = Tickets::getInstance()->getListItem((int)$id);
-        return view('department.edit', compact('item'));
+        return view('ticket.edit', compact('item', 'departments'));
     }
 
     public function update(Request $request, $id): RedirectResponse

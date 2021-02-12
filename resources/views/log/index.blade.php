@@ -32,7 +32,7 @@
                                 <th scope="row">{{$key + 1}}</th>
                                 <td>{{$log->user->name}}</td>
                                 <td>{{$log->message}}</td>
-                                <td>{{$log->ip}}</td>
+                                <td>{{$log->getIp()}}</td>
                                 <td>{{$log->getCreatedAt()}}</td>
                             </tr>
                         @endforeach

@@ -1,56 +1,54 @@
-@extends('layouts.main')
-@section('title','User List')
-@section('menu')
-    @include('user.menu')
-@endsection
+<?php
+/**
+ * @var \App\Models\Ticket $ticket
+ */
+?>
+@extends('layout.main')
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Заявки</h4>
+            </div>
+            <a href="{{route('ticket.create')}}" class="btn btn-sm btn-primary">Добавить</a>
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-striped table-sm">
                         <thead>
                         <tr>
-                            <th scope="col" width="1%">#</th>
-                            <th>User name</th>
-                            <th>Role</th>
-                            <th>Date created</th>
-                            <th>&nbsp;</th>
+                            <th>№ поручения/служебной записки</th>
+                            <th>Приоритет</th>
+                            <th>Инициатор</th>
+                            <th>Дата создания</th>
+                            <th>Срок исполнения</th>
+                            <th>Отсрочено до</th>
+                            <th>Дата фактического исполнения</th>
+                            <th>Тема служебной записи</th>
+                            <th>Отдел</th>
+                            <th>Исполнители</th>
+                            <th>Отметка об исполнении</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($items as $key => $user)
+                        @foreach($items as $key => $ticket)
                             <tr>
-                                <td>{{($key + 1)}}</td>
-                                <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getName()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getRole()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('user.edit', $user->id)}}">{{$user->getCreatedAt()}}</a>
-                                </td>
-                                <td>
-                                    <a href="{{route('user.destroy', $user->id)}}" class="btn btn-danger">Deactivate</a>
-                                </td>
+                                <td>{{$ticket->getAssignment()}}</td>
+                                <td>{{$ticket->getPriority()}}</td>
+                                <td>{{$ticket->getInitiator()}}</td>
+                                <td>{{$ticket->getCreatedAt()}}</td>
+                                <td>{{$ticket->getExecutionPeriod()}}</td>
+                                <td>{{$ticket->getDelay()}}</td>
+                                <td>{{$ticket->getExecutionActual()}}</td>
+                                <td>{{$ticket->getTheme()}}</td>
+                                <td>{{$ticket->getDepartment()}}</td>
+                                <td>{{$ticket->getExecutedBy()}}</td>
+                                <td>{{$ticket->getMarkingComment()}}</td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
-
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <nav aria-label="pagination example">
-                            {{ $items->links('layouts.paginator', ['paginator' => $items]) }}
-                        </nav>
-                    </div>
                 </div>
             </div>
-
         </div>
-
     </div>
-
 @endsection

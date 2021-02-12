@@ -3,7 +3,7 @@
 namespace App\Functionality;
 
 use App\Models\Department;
-use App\Models\Logs;
+use App\Models\Log;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,7 +35,7 @@ class Departments
             return 422;
 
         (new Department())->storeItem($validator->getData());
-        (new Logs())->store(auth()->user()->id, 'department created', request()->ip());
+        (new Log())->store(auth()->user()->id, 'department created', request()->ip());
         return 200;
     }
 
@@ -56,7 +56,7 @@ class Departments
             self::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            (new Logs())->store(auth()->user()->id, 'department updated', request()->ip());
+            (new Log())->store(auth()->user()->id, 'department updated', request()->ip());
 
         } catch (\Exception $exception) {
             return [
@@ -75,7 +75,7 @@ class Departments
                 ->getListItem($id)
                 ->delete();
 
-            (new Logs())->store(auth()->user()->id, 'department deleted', request()->ip());
+            (new Log())->store(auth()->user()->id, 'department deleted', request()->ip());
             return 200;
         } catch (\Exception $e) {
 

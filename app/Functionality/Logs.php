@@ -2,7 +2,7 @@
 
 namespace App\Functionality;
 
-use App\Models\Logs as LogsModel;
+use App\Models\Log as LogsModel;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class Logs

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property-read User $user
  */
-class Logs extends Model
+class Log extends Model
 {
     public function getItems(array $params): LengthAwarePaginator
     {

@@ -22,7 +22,7 @@ class CreateTicketsTable extends Migration
             $table->string('initiator');
             $table->string('theme');
             $table->string('executedBy', 100);
-            $table->string('markingComment', 255);
+            $table->string('markingComment', 255)->nullable();
             $table->timestamp('execution_period');
             $table->timestamp('execution_actual')->nullable();
             $table->timestamp('delay')->nullable();

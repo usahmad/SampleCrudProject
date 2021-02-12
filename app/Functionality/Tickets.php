@@ -4,7 +4,7 @@
 namespace App\Functionality;
 
 
-use App\Models\Logs;
+use App\Models\Log;
 use App\Models\Ticket;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
@@ -13,13 +13,12 @@ class Tickets
 {
 
     const rules = [
+        'assignment' => 'required',
         'priority' => 'required',
         'department_id' => 'required',
-        'assignment' => 'required',
         'initiator' => 'required',
         'theme' => 'required',
         'executedBy' => 'required',
-        'markingComment' => 'required',
         'execution_period' => 'required',
     ];
 
@@ -45,7 +44,7 @@ class Tickets
             return 422;
 
         (new Ticket())->storeItem($validator->getData());
-        (new Logs())->store(auth()->user()->id, 'ticket created', request()->ip());
+        (new Log())->store(auth()->user()->id, 'ticket created', request()->ip());
         return 200;
     }
 
@@ -66,7 +65,7 @@ class Tickets
             self::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            (new Logs())->store(auth()->user()->id, 'ticket updated', request()->ip());
+            (new Log())->store(auth()->user()->id, 'ticket updated', request()->ip());
 
         } catch (\Exception $exception) {
             return [

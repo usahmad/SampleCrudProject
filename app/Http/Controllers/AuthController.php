@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Logs;
+use App\Models\Log;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Auth\Guard;
@@ -64,7 +64,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        (new Logs())->store(auth()->user()->id, 'User logged out', request()->ip());
+        (new Log())->store(auth()->user()->id, 'User logged out', request()->ip());
         auth()->logout();
         return redirect(route('login'));
     }
@@ -115,7 +115,7 @@ class AuthController extends Controller
                 ];
 
                 if ($this->guard()->attempt($credentials)) {
-                    (new Logs())->store(auth()->user()->id, 'User logged in', request()->ip());
+                    (new Log())->store(auth()->user()->id, 'User logged in', request()->ip());
 
                     $request->session()->regenerate();
                     return redirect()->route('home');
@@ -124,8 +124,6 @@ class AuthController extends Controller
                 $this->limiter()->hit($this->throttleKey($request), 1 * 60);
 
                 $error = 'No matches in our DB';
-                (new Logs())->store(auth()->user()->id, 'User Left comment', request()->ip());
-
             }
         } catch (\Exception $exception) {
             $error = $exception->getMessage();
