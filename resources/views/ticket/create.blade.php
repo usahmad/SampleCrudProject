@@ -6,7 +6,7 @@
     <script src="{{asset('js/jqueryui.js')}}"></script>
     <script>
         $(function () {
-            $(".date").datepicker({dateFormat: 'dd-mm-yy'});
+            $(".date").datepicker({dateFormat: 'dd.mm.yy'});
         });
     </script>
 @endpush

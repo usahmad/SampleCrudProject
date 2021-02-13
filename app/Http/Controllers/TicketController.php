@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Functionality\Departments;
 use App\Functionality\Tickets;
 use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +12,8 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $items = Tickets::getInstance()->getList($request);
-        return view('ticket.index', compact('items'));
+        $departments = Department::query()->get();
+        return view('ticket.index', compact('items', 'departments'));
     }
 
     public function create()
@@ -49,18 +49,17 @@ class TicketController extends Controller
             return back()->with('error', 'Не хватает данных');
     }
 
-    public function show($id)
+    public function show($id): RedirectResponse
     {
-        $item = Tickets::getInstance()->getListItem($id);
-        return view('ticket.view', compact('item'));
+        return redirect()->route('ticket.index')->with(...$this->delete($id));
     }
 
-    public function delete($id): RedirectResponse
+    public function delete($id): array
     {
         $callback = Tickets::getInstance()->delete($id);
         if ($callback === 200)
-            return back()->with('success', 'Успешно');
+            return ['success', 'Успешно'];
         else
-            return back()->with('error', sprintf('Ошибка: %s, На строке: %s', ...$callback));
+            return ['error', sprintf('Ошибка: %s, На строке: %s', ...$callback)];
     }
 }

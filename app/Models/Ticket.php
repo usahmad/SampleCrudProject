@@ -88,28 +88,28 @@ class Ticket extends Model
             $items = $items->where('executedBy', 'like', '%' . $params['executedBy'] . '%');
 
         if (isset($params['execution_period_from']))
-            $items = $items->where('execution_period', '<=', Carbon::make($params['execution_period_from']));
+            $items = $items->where('execution_period', '>=', Carbon::make($params['execution_period_from']));
 
         if (isset($params['execution_period_to']))
-            $items = $items->where('execution_period', '>=', Carbon::make($params['execution_period_to']));
+            $items = $items->where('execution_period', '<=', Carbon::make($params['execution_period_to']));
 
         if (isset($params['execution_actual_from']))
-            $items = $items->where('execution_actual', '<=', Carbon::make($params['execution_actual_from']));
+            $items = $items->where('execution_actual', '>=', Carbon::make($params['execution_actual_from']));
 
         if (isset($params['execution_actual_to']))
-            $items = $items->where('execution_actual', '>=', Carbon::make($params['execution_actual_to']));
+            $items = $items->where('execution_actual', '<=', Carbon::make($params['execution_actual_to']));
 
         if (isset($params['delay_from']))
-            $items = $items->where('delay', '<=', Carbon::make($params['delay_from']));
+            $items = $items->where('delay', '>=', Carbon::make($params['delay_from']));
 
         if (isset($params['delay_to']))
-            $items = $items->where('delay', '>=', Carbon::make($params['delay_to']));
+            $items = $items->where('delay', '<=', Carbon::make($params['delay_to']));
 
         if (isset($params['created_from']))
-            $items = $items->where('created_at', '<=', Carbon::make($params['created_from']));
+            $items = $items->where('created_at', '>=', Carbon::make($params['created_from']));
 
         if (isset($paramsp['created_to']))
-            $items = $items->where('created_at', '>=', Carbon::make($params['created_to']));
+            $items = $items->where('created_at', '<=', Carbon::make($params['created_to']));
 
         if (isset($params['isTrashed']))
             $items = $items->withTrashed();
@@ -149,7 +149,7 @@ class Ticket extends Model
      */
     public function department(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class)->withTrashed();
     }
 
     /**

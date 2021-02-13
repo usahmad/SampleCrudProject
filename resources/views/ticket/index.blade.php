@@ -4,12 +4,24 @@
  */
 ?>
 @extends('layout.main')
+@push('scripts')
+    <script src="{{asset('custom/ticket_filter1.js')}}"></script>
+    <script src="{{asset('js/filter_zbrosser.js')}}"></script>
+    <link rel="stylesheet" href="{{asset('css/jqueryui.css')}}">
+    <script src="{{asset('js/jqueryui.js')}}"></script>
+    <script>
+        $(function () {
+            $(".date").datepicker({dateFormat: 'dd.mm.yy'});
+        });
+    </script>
+@endpush
 @section('content')
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
                 <h4>Заявки</h4>
             </div>
+            @include('ticket.filter')
             <a href="{{route('ticket.create')}}" class="btn btn-sm btn-primary">Добавить</a>
             <div class="card-body">
                 <div class="table-responsive">
@@ -32,7 +44,7 @@
                         <tbody>
                         @foreach($items as $key => $ticket)
                             <tr>
-                                <td>{{$ticket->getAssignment()}}</td>
+                                <td><a href="{{route('ticket.edit',$ticket->id)}}">{{$ticket->getAssignment()}}</a></td>
                                 <td>{{$ticket->getPriority()}}</td>
                                 <td>{{$ticket->getInitiator()}}</td>
                                 <td>{{$ticket->getCreatedAt()}}</td>
