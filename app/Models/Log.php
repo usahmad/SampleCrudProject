@@ -2,10 +2,12 @@
 declare(strict_types=1);
 
 namespace App\Models;
+
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @package App\Models
@@ -27,7 +29,7 @@ class Log extends Model
         if (isset($params['user_id']))
             $items = $items->where('user_id', '=', $params['user_id']);
         if (isset($params['message']))
-            $items = $items->where('message', 'like','%'.$params['message'].'%');
+            $items = $items->where('message', 'like', '%' . $params['message'] . '%');
         if (isset($params['ip']))
             $items = $items->where('ip', '=', ip2long($params['ip']));
 
@@ -38,7 +40,9 @@ class Log extends Model
     {
         try {
             $ip = ip2long($ip);
-            return self::query()->insert(compact('user_id', 'message', 'ip'));
+            return self::query()->insert(compact('user_id', 'message', 'ip'))
+                ? Cache::tags('logs')->flush()
+                : false;
         } catch (\Exception $exception) {
             dd($exception->getMessage());
         }

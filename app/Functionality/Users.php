@@ -1,20 +1,25 @@
 <?php
+
 namespace App\Functionality;
 
 use App\Models\Log;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class Users
 {
+    const USER_LIST = 'name={key}@page={key}';
+    const USER = 'id={key}';
 
     const rules = [
-        'name' => 'required',
-        'permissions' => 'required'
+        'name'        => 'required|string|max:50',
+        'permissions' => 'required|array'
     ];
 
     public static function getInstance(): Users
@@ -24,17 +29,50 @@ class Users
 
     public function getRouteNames(): array
     {
-        return array_diff(array_keys(Route::getRoutes()->getRoutesByName()), \App\Functionality\Constants::excludedRoutes);
+        return array_diff(array_keys(Route::getRoutes()->getRoutesByName()), Constants::excludedRoutes);
     }
 
     public function getList($request): LengthAwarePaginator
     {
-        return (new User())->getItems($request->all());
+        $cacheKey = Str::replaceArray(
+            '{key}',
+            [
+                $request->input('name'),
+                (0 === (int)$request->query('page')) ? 1 : (int)$request->query('page')
+            ],
+            self::USER_LIST
+        );
+
+        $cache = Cache::tags('users')->get($cacheKey);
+
+        if ($cache === null) {
+
+            $cache = (new User())->getItems($request->all());
+            Cache::tags('users')->put($cacheKey, $cache, now()->addDay());
+
+        }
+
+        return $cache;
     }
 
-    public function getListItem($id)
+    public function getListItem($id): User
     {
-        return (new User())->getItem($id);
+        $cacheKey = Str::replaceArray(
+            '{key}',
+            [
+                $id
+            ],
+            self::USER
+        );
+
+        $cache = Cache::tags(['users', $id])->get($cacheKey);
+
+        if ($cache === null) {
+            $cache = (new User())->getItem($id);
+            Cache::tags(['users', $id])->put($cacheKey, $cache, now()->addDay());
+        }
+
+        return $cache;
     }
 
     /**
@@ -48,10 +86,11 @@ class Users
             return 422;
 
         $callback = (new User())->storeItem($validator->getData());
-        if(is_array($callback)){
+        if (is_array($callback)) {
             return $callback;
         }
         (new Log())->store(auth()->user()->id, 'user created', request()->ip());
+        Cache::tags('users')->flush();
         return 200;
     }
 
@@ -72,10 +111,14 @@ class Users
             $callback = Users::getInstance()
                 ->getListItem($id)
                 ->storeItem($validator->getData());
-            if(is_array($callback)){
+            if (is_array($callback)) {
                 return $callback;
             }
+
             (new Log())->store(auth()->user()->id, 'user updated', request()->ip());
+
+            Cache::tags(['users', $id])->flush();
+
 
         } catch (\Exception $exception) {
             return [
@@ -92,6 +135,7 @@ class Users
         try {
             self::getInstance()->getListItem($id)->delete();
             (new Log())->store(auth()->user()->id, 'user deleted', request()->ip());
+            Cache::tags('users')->flush();
             return 200;
         } catch (\Exception $e) {
             return [
@@ -108,8 +152,8 @@ class Users
          */
         $user = Auth::user();
         $validator = Validator::make($params, [
-            'old_password' => 'required',
-            'new_password' => 'required',
+            'old_password'      => 'required',
+            'new_password'      => 'required',
             'new_password_conf' => 'required|same:new_password'
         ]);
         if ($validator->fails()) {
